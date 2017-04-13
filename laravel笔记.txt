@@ -1,0 +1,381 @@
+﻿1. 在\web\config 目录下admin_menus. php 增加菜单
+2. 样式在views/admin/issues/show. blade. php
+3. 设置 diffForHumans() 的语言呢？如果做中文站，肯定是希望展示为"x 分钟之前",而不是"x minutes ago"可以在app/Providers/AppServiceProvider. php的boot()方法加上：\Carbon\Carbon::setLocale('zh');
+4. 数据库迁移 php artisan migrate
+5. Once the middleware has been defined in the HTTP kernel, you may use the middleware key in the route options array:
+`
+    Route::get('admin/profile', ['middleware' => 'auth', function () {
+        //
+    }]);
+`
+增加上middleware  因为5.2把 ->withErrors($validator)会将验证错误信息存放到一次性session中，以便在视图中可以通过$errors变量访问。 去掉了
+
+6. 数据库迁移 注意表名都是复数 即加个s
+    * 创建tasks表 使用mask:migration命令为tasks 生成一个新的数据库迁移
+    php artisan make:migration create_tasks_table --create=tasks 生成的新迁移文件位于database/migrations目录下。这个命令已经添加了自增id和时间戳，然后根据需求编辑增加更多的字段到任务表 
+    * 运行迁移使用 php artisan migrate
+
+7. laravel安装并制定版本 进入安装目录 在cmd 命令下执行命令 composer create-project laravel/laravle=5. 1. * laravle5. 1 --prefer-dist  其中laravel/laravle=5. 1. * 为指定下载laravel5. 1版本 laravel5. 1为想要新建项目的文件名名字
+
+8. 使用命令创建model,为tasks表创建模型，使用以下命令, php artisan make:model Task会在app目录下生成,会自动对应tasks表
+
+9. 路由配置在app/http下面, 控制器也在app/controller下面 。php artigsan make:migration生成的迁移文件在 database/migrations下面。 视图页面在resources/views下面， 项目根目录是public，model在app/ 目录下 但也可以更改 
+
+10. model之间的关联,甩hasMany和belongsTo进行关联 比如users表 对应多个tasks
+`   
+    class User extends Model implements AuthenticatableContract,AuthorizableContract,CanResetPasswordContract
+	{
+		//任务
+		public function tasks(){
+			return $this->hasMany(Task::class);
+		}
+	} 
+`
+    上面不需要用use app\Task; 在Task模型里面 
+`
+	class Task extends Model{
+		public function user()
+		{
+			return $this->belongsTo(User::class);
+		}
+	} app/Http/Controllers/AuthController
+`
+11. 新安装的laravel应用中已经包含了app/Http/Controllers/AuthController这个控制器,该控制器中使用了一个特殊的AuthenticatesAndRegistersUsers trait,而这个trait 中包含了用户注册登录所必须的相关逻辑
+
+12. 注意布局中的@yield('content')部分，这是一个blade指令，用于指定继承布局的子页面在这里注入自己的内容。
+
+13. 可以在控制器中验证数据 
+`
+    public function store(Request $request){
+    	$this->validate($request,[
+    		'name'=>"required|max:255",
+    	]);
+    } 
+`
+14. Html表单只支持post和get两种请求方式,因为需要使用某种方式伪造delete请求
+
+15. 使用blade模板引擎防止csrf攻击{!! csrf_field() !!} 
+
+16. 路由跳转 return redirect()->route('academy',['id'=>1]);
+
+17. 命令空间，routes.php中的定义的控制器位于App\HttpControllers命令空间下，所以如果要指定命名空间，只需要指
+定App\Http\Contollers之后的部分即可 例如：
+Route::group([]);
+php artisan make:migration add_question_ids_colunmn_to_paper_rules --table=paper_rules
+18. 创建迁移 1. php artisan make:migration 2. php artisan migrate 
+
+19. 增加字段比如在product表中增加change_max字段
+	php artisan make:migration add_change_max_colunmn_to_product_table --table=products
+
+    php artisan make:migration change_title_colunmn_to_review_question_table --table=review_questions
+
+    php artisan make:migration rename_group_to_tag_id_questionnaire_question_table --table=questionnaire_questions
+
+    在新增加的迁移中up方法和down方法中增加下面的代码
+`    
+    public function up()
+    {
+        Schema::table('products', function (Blueprint $table) {
+            $table->Integer('change_max')->default(0)->comment('可调课人数');
+        });
+    }
+`
+`  
+    public function down()
+    {
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn('change_max');
+        });
+    }
+`
+    在执行php artisan migrate 命令
+
+20. 格式化时间  $this->_view['str_time'] = \TimeUtil::sec_to_time($time);
+
+21. 增加一个字段后 想要在保存后在填充 例如Openclasses表中的room_id字段，在Model\Openclass. php模型里面 增加
+	//可填充的
+    protected $fillable = array('room_id');即可
+
+22. $this->model->where('id',$id)->whereRaw('student_max > students')->get()->isEmpty()
+根据教室id 查询所有student_max 大于students的记录  想使用where 必须有一个变量值
+
+23. MethodNotAllowedHttpException 报错是因为  路由不对 很可能是method=put 的原因 
+
+24. 获取新增id (1)DB::insertGetId(); (2)使用的是$this->model->save()方法, 直接对象->id 就是新增id
+
+25.  ctrl+shift+F 可以查询函数在项目中所有使用这个函数的文件,ctrl+p可以查询文件
+
+26.  删除数据，可以使用数据的事物 
+`
+    \DB::beginTransaction();
+
+    OpenclassDetail::where('openclass_id', $id)->delete();
+    $this->model->where('id', $id)->delete();
+
+    \DB::commit();
+`
+
+27.  使用dd(\DB::getQueryLog()); 可以显示查询的mysql 语句;
+
+28.  在后台的voucher/create 页面{!! Form::text('total', null, ['class' => 'spinbox-input form-control text-center spinner']) !!}  输入框为数字并且数字不为负数。 并在下面加上
+`
+    @section('pagescripts')
+        @if($can_edit)
+            {!! HTML::script('assets/ace/pages/openclass_edit. js?v=2016041401') !!}
+        @endif
+        <script type="text/javascript">
+            $(function(){
+                $('. spinner'). ace_spinner({
+                    min: 0,
+                    step: 1,
+                    max: 1000000,
+                    btn_up_class: 'btn-info',
+                    btn_down_class: 'btn-info'
+                });
+            })
+        </script>
+    @stop
+`
+29. public $incrementing = false;
+
+30. $now = Carbon::now()->addHours(2)->toDateTimeString();  计算当前时间2个小时后
+
+31. $date='2016-05-02';  时间转换
+	$dt_start = new Carbon($date);
+    $dt_end = $dt_start->copy()->addDay();
+
+32. resources/macros
+    $this->_view['lev']=array_get(\Config::get('base. class_lv'),$student->level_id);
+
+33.  字符串模糊查询 $where[] = ['realname', 'like', '%'. $name. '%'];
+
+34. laravle 页面之间进行引用页面 并传递变量   @include('Student::course. item')
+
+  "items" : ['source', 'undo', 'redo', 'table', 'code'],
+
+35.  laravel 改变数据库字段
+`    
+    Schema::table('review_questions', function (Blueprint $table) {
+        $table->text('title')->nullable(null)->comment('题目')->change();
+    });
+
+    Schema::table('review_questions;', function (Blueprint $table) {
+        $table->string('title',500)->nullable(null)->comment('题目');
+    });
+`
+
+36. (new Carbon($next_class['start_at']))->toTimeString(); 转换为小时分钟秒
+
+37. $user_id = \Auth::user()->id; 获取当前登录用户id 
+    $user_name = \Auth::user()->usernmae; 获取当前登录者用户名
+
+38.  private $img_path = 'http://115. 28. 244. 55:8085/upload';
+	
+	$data[0]['link_to'] = preg_replace('/(?<=img src)(\W+)\/upload?/i', "$1". $this->img_path, $data[0]['link_to']);
+
+39. laravel 使用 renameColumn 函数重命名一个字段：
+`    
+    Schema::table('users', function($table){
+        $table->renameColumn('from', 'to');
+    });
+`
+40.  路由怎么修改 都提示不对, 可能ajax 请求的时候token 没加 
+
+41.  如果没有则新建  TeacherBank::firstOrNew(['teacher_id'=>$teacher_id]); 
+	并且在 model 里面设置可填充 protected $fillable = ['teacher_id']; 
+`
+	$query = $this->model->with(['openclass']);
+    $openclasses = Openclass::where('level', $openclass_level)
+        ->lists('id')->all();
+    if (empty($openclasses)) {
+        return [];
+    }
+
+    $teachers = Teacher::whereNested(function ($query) use ($filtersTeacher) {
+        foreach ($filtersTeacher as $key => $value) {
+            $query->where($value[0], $value[1], $value[2]);
+        }
+    })->lists('id')->all();
+    if (empty($teachers)) {
+        return [];
+    }
+    $query->whereIn('teacher_id', $teachers);
+`
+42. {{env('APP_CDN')}} cdn 加速
+43. Request::getRequestUri() 获取当前url 并且带参数
+
+44.  弹框页面有缓存记得在js 加上这句话
+`
+    // cleanup the content of the hidden remote modal because it is cached
+    $('#myModal'). on('hide. bs. modal', function (e) {
+        $(this). removeData('bs. modal');
+    });
+`
+
+45. 文件上传控制器 为admin/uploadController控制器 
+46. StudentLevel 
+    const TYPE_NAMES = [
+       '1' => '长期班',
+       '2' => '美教班',
+       '5' => '厉步',
+       '8' => '新概念'
+   ];
+
+47. linux 时间同步 /usr/sbin/ntpdate 0. cn. pool. ntp. org或者 sudo ntpdate time. windows. com
+
+48. laravel 修改文件的时候 用composer dump-autoload 更新下laravel 项目vendor文件夹下面的composer缓存文件
+
+49. 安装robomongo 连接不上mongod 数据库 修改mongod. conf中bindIp:127. 0. 0. 1改成0. 0. 0. 0 重启mongod
+
+50. laravel  Seeder数据填充器工具    
+    php artisan db:seed   database\seeds 所有表填充数据
+    php artisan db:seed --class=ArticleTableSeeder 单个表填充数据
+
+51. App\User::class 这个参数代表User这个model
+
+52. php artisan jwt:generate 生成jwt秘钥
+
+53. 如果站点在国内，建议使用百度静态资源库的Bootstrap，代码如下：
+    <link rel="stylesheet" href="http://apps. bdimg. com/libs/bootstrap/3. 3. 4/css/bootstrap. min. css">
+
+54. array_slice(config('base. class_lv'),10)  配置文件从第10个开始
+
+55.  Laravel  chunk(200) 只取200条，如果总共有200条以上数据 在使用命令文件的时候要多执行几遍命令
+
+56. 命令文件protected $signature = 'update:openclassesLevel'; 在目录使用php artisan update:openclassesLevel    signature(签名; 署名; 识别标志，鲜明特征; [医] 药的用法说明)
+
+57. 创建一个原生表达式 可以使用 DB::raw方法：
+
+    Openclass::where('id', $this->model->openclass_id)->update([
+        'students' => DB::raw('students - 1')
+    ]);
+`
+    select 1 from orders where orders. user_id = users. id相等于
+`
+    DB::table('orders')->select(DB::raw(1))
+        ->from('orders')
+        ->whereRaw('orders. user_id = users. id');
+` 
+select 1 其实没什么特别的意思，就是select 一个指定的值，因为我的目地是判断是否有存在，所以不需要返回任何字段信息。写select 1比返回字段信息效率更高 比方说:select 1 from employee, 表employee里有6行数据，因为有6条记录，所以是6个1啊
+
+    php artisan make:migration create_paper
+    php artisan make:migration create_papers_table --table=papers
+
+58. $table->decimal('difficulty', 10, 2)->default(0)->comment('试卷难度'); 
+    迁移文件  数据库字段两个小数点。
+59. replicate() 快速复制数据 Article::find(1)->replicate()->save();
+    $article = Article::find(1)->replicate();
+    $article->title = 'Laravel 复制数据并修改标题';
+    $article->save();
+
+60. html 一行代码实现页面跳转 <meta http-equiv="refresh" content="1;URL=http://www. xwcms. net">
+
+61. MassAssignmentException laravel  在相应model 设置protected $fillable = ['user_id', 'paper_id', 'operation'];
+
+62.  //设置cookie 
+    return back()->withCookie('lottery_v2_liked_'. $student_id. '_'. $gift->id, 1, 60*24*30);
+
+63. 判断指定日期是否过去
+` 
+    $start = '010010000';
+    if (date('mdHi') >= $start) {
+        dd('过去了');
+    } else {
+        dd('还没到');
+    }
+`
+64.  获得本周周末日期: 
+    $dt_start = Carbon::now();   $dt_end = $dt_start->endOfWeek();
+
+65. php 去掉字符串的最后一个字符 
+    $str = "1,2,3,4,5,6,"; 
+    $newstr = substr($str,0,strlen($str)-1); 
+    echo $newstr;  //echo 1,2,3,4,5,6
+
+66.  laravel 5. 3版本中lists换成pluck 
+
+67. 使用mysql语句。
+    return PaperQuestion::select(\DB::raw('count(*) as nums, question_type'))
+            ->where('paper_id', $paper_id)->groupBy('question_type')->get();
+
+68. angular. js 下拉框是数组时候，比如这样
+    'paper_type_arr' => [
+        ['type' => '0', 'desc' => "全部"],
+        ['type' => '1', 'desc' => "预习"],
+    ]
+    $scope. paper_type_arr = paper_type_arr;
+
+    $scope. type = $scope. paper_type_arr[0]. type; (这样就可以了)
+
+    <select class="form-control" ng-model="type"
+    ng-options="types. type as types. desc for types in paper_type_arr"
+    ng-change="selectType()">
+    </select>
+
+69. var num = document. getElementById('num'). value;
+    alert(~~num);  去掉开头的0
+
+70. php artisan make:auth 自动实现登陆 注册
+
+71. postman中headers可以填充token。  (Authorization: Bearer空格你获取的token)
+
+72. POST方式：HOST/auth/login body参数form-data  mobile :13782341223 password:111111 
+就可以获取token
+
+73. 修改Homestead. yaml文件后，需要运行 vagrant provision  重启重新启动 Homestead。
+
+74. cmd进入redis目录 输入redis-server. exe  redis. conf 启动
+
+75. cmd进入mongodb\bin\目录输入mongod --dbpath D:\Mongodb\data 启动
+
+76. git 提交步骤 (1). git status 查看状态  (2). git add 文件 增加文件;(3). git commit -m " 注释1.增加了评论……";(4). git push  
+    有冲突 用git pull 解决冲突,git branch 查看分支
+
+77. 新建分支 需要 1. git clone 网址 2.  拉取core分支代码  3. composer  dumpautoload
+	4.  配置env 文件5. composer update 
+
+78. composer 下载东西慢 修改composer. json文件 添加到最后
+    "repositories": [{
+        "type": "composer",
+        "url": "https://packagist. phpcomposer. com"
+    }, {
+        "packagist": false
+    }]
+
+79. json_encode($arr, JSON_UNESCAPED_UNICODE); 数组转json时候, 不转义中文
+
+80. json_decode($bak_data, true); 对象json解析为数组
+
+81. $("span[id^='grade'"). parent(). removeClass('active');
+匹配id以 index开头的 div。[attribute^=value]：匹配给定的属性是以某些值开始的元素。
+
+82. PSR-0 自动加载 PSR-1 定义基本代码规范 PSR-2 代码样式 PSR-3 日志接口 
+PSR-4 如何指定文件路径从而自动加载类定义，同时规范了自动加载文件的位置  。这个乍一看和PSR-0重复了，实际上，在功能上确实有所重复 PSR-4和PSR-0最大的区别是对下划线（underscore)的定义不同。PSR-4中，在类名中使用下划线没有任何特殊含义。而PSR-0则规定类名中的下划线_会被转化成目录分隔符。 
+
+83. ng-class="{true: 'active', false: ''}[{{key}} == 10]" ng-class 样式
+
+84. ng-if 不能跟ng-model 一块使用 最好用ng-show替换
+
+85. homestead登陆mysql :mysql -h192. 168. 10. 10 -uhomestead -p   密码：secret
+
+86. angular. js 2. 0 npm start 启动失败 修改package. json 
+"start": "tsc && concurrently \"tsc -w\" \"lite-server\" ",
+为："start": "concurrently \"npm run tsc:w\" \"npm run lite\" ",
+
+87. angular. js 2. 0 单向绑定： <input value="{{hero. name}}">双向绑定绑定数据 <input [(ngModel)]="hero. name" placeholder="输入姓名">
+
+88. js获取php数组 var s = {!! json_encode(config('questions. question_tag')) !!}
+
+89. 创建命令文件Artisan 控制台命令 php artisan make:console HelloLaravelAcademy --command=laravel:academy, 执行完成后，会在app/Console/Commands目录下生成一个HelloLaravelAcademy. php文件.  在运行命令前需要将其注册到App\Console\Kernel的$commands属性中：
+protected $commands = [
+     . . .   //其他命令类
+     \App\Console\Commands\HelloLaravelAcademy::class
+];
+在控制台运行如下Artisan命令：
+php artisan laravel:academy(来自于HelloLaravelAcademy. php中protected $signature = 'laravel:academy';) $signature即为在控制台执行的命令名
+
+90.  数据库报错日志try catch日志 \Log::error('------->addReview Exception# ' .  $e->getMessage());
+
+91.  bootstrap-datepicker限定可选时间范围             startDate: '2017-01-10',  
+                endDate : new Date(),//最大日期
+92. 修改composer 文件后 记得composer update -vvv 然后"composer dump-autoload"

@@ -1,0 +1,322 @@
+0、lnmp平台和基本操作命令
+
+1、php二维数组进行排序
+	<?php
+	$arr = [
+		'0' => ['id' => 1, 'age' => 18], 
+		'1' => ['id' => 2, 'age' => 10],
+		'2' => ['id' => 3, 'age' => 19]
+		];
+	$ages = [];
+	foreach($arr as $k=>$v){
+		$ages[] = $v['age'];
+	}
+	array_multisort($ages, SORT_ASC, $arr);
+	print_r($arr);
+	?>
+2、php将两个数组相同的key合并到一个数组
+	<?php
+	$arr = [
+		['id' => 1, 'age' => 18], 
+		['id' => 2, 'age' => 10],
+		['id' => 3, 'age' => 19]
+	];
+	$arr1 = [
+		['id' => 1, 'name' => 'a'],
+		['id' => 2, 'name' => 'b'],
+		['id' => 5, 'name' => 'e']
+	];
+	$names = array_column($arr1, 'name', 'id');
+	foreach($arr as $k=>$v){
+		$arr[$k]['name'] = '';
+		if(array_key_exists($v['id'], $names)){
+			$arr[$k]['name'] = $names[$v['id']];
+		}
+
+		
+	}
+	print_r($arr);
+	?>	
+3、var_dump/print/print_r/echo
+	echo是PHP语句,print和print_r是函数,语句没有返回值,函数可以有返回值(即便没有用) 
+	print只能打印出简单类型变量的值(如int,string) 
+	print_r可以打印出复杂类型变量的值(如数组,对象)
+	var_dump返回表达式的类型与值而print_r仅返回结果，相比调试代码使用var_dump更便于阅读。
+4、include和require
+	require一个文件存在错误的话，那么程序就会中断执行了，并显示致命错误
+	include一个文件存在错误的话，那么程序不会中端，而是继续执行，并显示一个警告错误。
+	include有返回值，而require没有。
+	require是无条件包含也就是如果一个流程里加入require,无论条件成立与否都会先执行require。
+	include_once()，require_once()会先检查目标文件的内容是不是在之前就已经导入过了，如果是的话，便不会再次重复导入同样的内容。 
+	require通常放在PHP程序的最前面，PHP程序在执行前，就会先读入require所指定引入的文件，使它变成PHP程序网页的一部份。常用的函数，亦可以这个方法将它引入网页中。 
+	include一般是放在流程控制的处理部分中PHP程序网页在读到include的文件时，才将它读进来。这种方式可以把程序执行时的流程简单化。 
+5、get和post
+	 get是从服务器上获取数据,post是向服务器传送数据。
+6、cookie和session
+	session 在服务器端，cookie 在客户端（浏览器）
+	session 默认被存在在服务器的一个文件里（不是内存）
+	session 的运行依赖 session id，而 session id 是存在 cookie 中的，也就是说，如果浏览器禁用了 cookie ，同时 session 也会失效（但是可以通过其它方式实现，比如在 url 中传递 session_id）
+	session 可以放在 文件、数据库、或内存中都可以。
+	用户验证这种场合一般会用 session 因此，维持一个会话的核心就是客户端的唯一标识，即 session id
+7、redis和memcache
+	Redis不仅仅支持简单的k/v类型的数据，同时还提供list，set，zset，hash等数据结构的存储。
+	Redis支持数据的备份，即master-slave模式的数据备份。
+	Redis支持数据的持久化，可以将内存中的数据保持在磁盘中，重启的时候可以再次加载进行使用
+	redis如何备份到磁盘中？
+	每天备份rdb，aof做灾难恢复
+	如果需要恢复数据，拷贝备份文件 dump.rdb到安装目录 
+	1.RDB这是一种比较常见的方式，采用 写时复制 的方式，效率高，速度快，介绍一下写时复制的机制：
+		1.执行save命令 ，找到dump.rdb（默认放到执行命令（redis-server）的路径下）
+		2.执行redis-server  redis.conf (如果配置文件选择的是RDB备份方式)启动之后就ok了
+	2.AOF aof采用一种fsync的方式进行持久化，相比RDB的方式会相对较慢。但是相对安全，甚至可以说是绝对安全的，取决于具体的配置。他不需要子进程进行协助，他是一种将有关写的命令append到文件的方式来记录redis的状态方式。aof也可以分为三种方式进行append。在此之前先打开appendonly的开关为yes.
+		1.找到appendonly.aof（默认放到执行命令（redis-server）的路径下）
+		2.执行redis-server redis.conf就可以了（如果配置文件选择的是AOF备份方式）
+8、mongodb和mysql
+	(1)数据库模型：非语句关系型；关系型数据库
+	(2)存储方式：虚拟内存+持久化；不同的引擎有不同存储方式
+	(3)查询语句不同；mongo json存储格式，db锁导致队列堆积，无事务机制。
+	(4)数据处理方式：基于内存，将数据存在物理内存中，从而达到高速读写；
+	(5)成熟度广泛度不如mysql
+	(6)b.将mongodb作为类似redis，memcache来做缓存db，为mysql提供服务，或是后端日志收集分析。考虑到mongodb属于nosql型数据库，sql语句与数据结构不如mysql那么亲和，也会有很多时候将mongodb做为辅助mysql而使用的类redis memcache 之类的缓存db来使用。亦或是仅作日志收集分析。
+9、php自动加载
+	第一种方案用__autoload,这个函数较简单,也较弱.
+	第二种方案用spl自动加载,这里具体说一下这个.spl_autoload_register()
+10、OOP
+	多态就是把子类对象赋值给父类引用，然后调用父类的方法，去执行子类覆盖父类的那个方法。在PHP中，多态值指的就是方法的重写。方法重写是指一个子类中可以重新修改父类中的某些方法，使其具有自己的特征。重写要求子类的方法和父类的方法名称相同，这可以通过声明抽象类或是接口来规范
+	接口没有数据成员，但是抽象类有数据成员，抽象类可以实现数据的封装。
+	接口没有构造函数，抽象类可以有构造函数。
+	接口中的方法都是public类型，而抽象类中的方法可以使用private、protected或public来修饰。
+	一个类可以同时实现多个接口，但是只能实现一个抽象类。
+	相同点：函数体内不能写任何东西，连两个大括号都不能写！！！如：function getName();这样就行了
+11、mysql索引
+	(1)较频繁地作为查询条件的字段
+	(2)唯一性太差的字段不适合建立索引
+	(3)更新太频繁地字段不适合创建索引
+	(4)不会出现在where条件中的字段不该建立索引/order by 排序字段适合建立索引
+12、myisam和innodb/三范式
+	第一范式：1NF是对属性的原子性约束，要求属性（列）具有原子性，不可再分解 (只要是关系型数据库 自动满足第一范式)
+	第二范式：2NF是对记录的唯一性约束，要求每条记录既有唯一性 即实体的唯一性 （通常使用主键来完成，主键ID一般不包含业务逻辑，正因为不包含业务逻辑所以数据稳定）
+	第三范式：3NF是对字段的冗余性约束，要求字段完全没有冗余。（一个字段的内容重复出现多次或者可以在另一张表中可以推算出来的数据 即为冗余数据）
+	memory存储引擎文件数据都存储在内存中，如果mysqld进程发生异常，重启或关闭机器这些数据都会消失。所以memory存储引擎中的表的生命周期很短，一般只使用一次。
+13、什么是HTTP协议/HTTP错误状态码
+	http（超文本传输协议）是一个基于请求与响应模式的、无状态的（后续处理需要前面信息需要重新传递）、应用层协议。
+	200 OK//客户端请求成功
+	400 Bad Request//客户端请求语法错误，不能被服务器所理解
+	401 Unauthorized//请求未授权
+	403 Forbidden//服务器收到请求，但是拒绝提供服务
+	404 Not Found//请求资源不存在
+	500 Internal Server Error//服务器发生不可预期的错误
+	503 Server Unavailable//服务器当前不能处理客户端请求，一段时间后可能恢复正常
+14、php错误级别
+	//禁用错误报告
+	error_reporting(0);
+	//报告运行时错误
+	error_reporting(E_ERROR | E_WARNING | E_PARSE);
+	//报告所有错误
+	error_reporting(E_ALL);
+	(1)E_ERROR 致命的运行错误。错误无法恢复，暂停执行脚本。
+	(2)E_WARNING警告非致命性错误。非致命的运行错误，脚本执行不会停止。
+	(3) E_PARSE 编译时解析错误。解析错误只由分析器产生。
+	(4) E_NOTICE 运行时提醒 这些经常是你代码中的bug引起的，也可能是有意的行为造成的。)
+	(5)E_CORE_ERROR PHP启动时初始化过程中的致命错误。
+	(6)E_CORE_WARNING PHP启动时初始化过程中的警告(非致命性错)。
+	(7)E_COMPILE_ERROR 编译时致命性错。这就像由Zend脚本引擎生成了一个E_ERROR。
+	(8)E_COMPILE_WARNING 编译时警告(非致命性错)。这就像由Zend脚本引擎生成了一个E_WARNING警告。
+	(9)E_USER_ERROR 用户自定义的错误消息。这就像由使用PHP函数trigger_error（程序员设置E_ERROR）
+	(10)E_USER_WARNING 用户自定义的警告消息。这就像由使用PHP函数trigger_error（程序员设定的一个E_WARNING警告）
+	(11)E_USER_NOTICE 用户自定义的提醒消息。这就像一个由使用PHP函数trigger_error（程序员一个E_NOTICE集）
+	(12)E_STRICT 编码标准化警告。允许PHP建议如何修改代码以确保最佳的互操作性向前兼容性。
+	(13)E_RECOVERABLE_ERROR 开捕致命错误。这就像一个E_ERROR，但可以通过用户定义的处理捕获（又见set_error_handler（））
+	(14)E_ALL 所有的错误和警告(不包括 E_STRICT) (E_STRICT will be part of E_ALL as of PHP 6.0)
+15、mysql优化、group_by join
+	(1)选取最适用的字段属性。尽量把字段设置为NOT NULL，这样在将来执行查询的时候，数据库不用去比较NULL值。对于某些文本字段，例如“省份”或者“性别”，我们可以将它们定义为ENUM类型。因为在MySQL中，ENUM类型被当作数值型数据来处理，而数值型数据被处理起来的速度要比文本类型快得多。 
+	(2)使用连接（JOIN）来代替子查询(Sub-Queries) 。连接（JOIN）之所以更有效率一些，是因为MySQL不需要在内存中创建临时表来完成这个逻辑上的需要两个步骤的查询工作。
+	(3)使用联合(UNION)来代替手动创建的临时表。它可以把需要使用临时表的两条或更多的 SELECT查询合并的一个查询中
+	SELECT Name, Phone FROM client UNION SELECT Name, BirthDate FROM author UNION SELECT Name, Supplier FROM product; 
+	(4)事务
+	(5)锁定表 由于在事务执行的过程中，数据库将会被锁定，因此其它的用户请求只能暂时等待直到该事务结束。
+	LOCK TABLE inventory WRITE Select Quantity FROM inventory WHERE Item='book'; 
+	… 
+	UPDATE inventory SET Quantity=11 WHERE Item='book'; 
+	UNLOCK TABLES  
+	这里，我们用一个SELECT语句取出初始数据，通过一些计算，用UPDATE语句将新值更新到表中。包含有WRITE关键字的LOCK TABLE语句可以保证在UNLOCK TABLES命令被执行之前，不会有其它的访问来对inventory 进行插入、更新或者删除的操作。
+	(6)使用外键 锁定表的方法可以维护数据的完整性，但是它却不能保证数据的关联性。这个时候我们就可以使用外键。
+	(7)使用索引  索引应建立在那些将用于JOIN, WHERE判断和ORDER BY排序的字段上。尽量不要对数据库中某个含有大量重复的值的字段建立索引。
+	(8)优化的查询语句
+	SELECT * FROM order WHERE YEAR(OrderDate)<2001; 
+	SELECT * FROM order WHERE OrderDate<'2001-01-01';  
+	同样的情形也会发生在对数值型字段进行计算的时候： 
+	SELECT * FROM inventory WHERE Amount/7<24; 
+	SELECT * FROM inventory WHERE Amount<24*7; 
+	SELECT * FROM books WHERE name LIKE 'MySQL%'; 
+	但是如果换用下面的查询，返回的结果一样，但速度就要快上很多： 
+	SELECT * FROM books WHERE name>='MySQL' AND name<'MySQM';
+	limit越大，效率越低
+	select id from t limit 10000, 10;
+	=>
+	select id from t where id > 10000 limit 10;
+16、php命名空间
+	在PHP中，命名空间用来解决在编写类库或应用程序时创建可重用的代码如类或函数时碰到的两类问题：
+	(1)用户编写的代码与PHP内部的类/函数/常量或第三方类/函数/常量之间的名字冲突。
+	(2)为很长的标识符名称(通常是为了缓解第一类问题而定义的)创建一个别名（或简短）的名称，提高源代码的可读性。
+17、按值传递、引用传递
+	(1)按值传递：函数范围内对值的任何改变在函数外部都会被忽略
+	(2)按引用传递：函数范围内对值的任何改变在函数外部也能反映出这些修改
+	(3)优缺点：
+	A:按值传递时，php必须复制值。特别是对于大型的字符串和对象来说，这将会是一个代价很大的操作。
+	B.按引用传递则不需要复制值，对于性能提高很有好。
+18、软链接和硬链接
+	总之，建立软链接就是建立了一个新文件。当访问链接文件时，系统就会发现他是个链接文件，它读取链接文件找到真正要访问的文件。
+
+	当然软链接也有硬链接没有的缺点：因为链接文件包含有原文件的路径信息，所以当原文件从一个目录下移到其他目录中，再访问链接文件，系统就找不到了，而硬链接就没有这个缺陷，你想怎么移就怎么移；还有它要系统分配额外的空间用于建立新的索引节点和保存原文件的路径。
+19、
+	<?php
+	$arr = [1, 2, 3];
+	$a = 0;
+	foreach($arr as &$a){
+		++$a;
+	}
+	echo $a;4
+	echo $a++;4
+20、静态属性
+	<?php 
+	 function test(){
+	  static $i = 1;
+	  echo $i;
+	  $i++;
+	 }
+	 test();1
+	 test();2
+	 ?>
+	 <?php 
+	 function test(){
+	  $i = 1;
+	  echo $i;
+	  $i++;
+	 }
+	 test();1
+	 test();1
+	 ?>
+ 21、数据结构时间复杂度
+ 	一个问题本身也有它的复杂性，如果某个算法的复杂性到达了这个问题复杂性的下界，那就称这样的算法是最佳算法。常见的时间复杂度高低顺序如下：O(1) 常数阶 < O(logn) 对数阶 < O(n) 线性阶 < O(nlogn) < O(n^2) 平方阶 < O(n^3) < O(2^n) < O(n!) < O(n^n)
+ 	时间复杂度计算步骤
+	⑴ 找出算法中的基本语句；
+	算法中执行次数最多的那条语句就是基本语句，通常是最内层循环的循环体
+	⑵ 计算基本语句的执行次数的数量级；
+	只需计算基本语句执行次数的数量级，这就意味着只要保证基本语句执行次数的函数中的最高次幂正确即可，可以忽略所有低次幂和最高次幂的系数。这样能够简化算法分析，并且使注意力集中在最重要的一点上：增长率。
+	⑶ 用大Ο记号表示算法的时间性能。
+	将基本语句执行次数的数量级放入大Ο记号中。
+	如果算法中包含嵌套的循环，则基本语句通常是最内层的循环体，如果算法中包含并列的循环，则将并列循环的时间复杂度相加。
+ 22、堆栈、队列、链表
+ 	堆栈和队列都是特殊的线性表，差别是线性表的插入删除操作不受限制，而堆栈只能在栈顶删除和插入，队列只能在队尾插入，对头删除。
+ 	堆栈：堆栈是一种特殊的线性表，堆栈的 数据元素以及数据元素之间的逻辑关系和线性表完全相同，只是线性表允许在任意位置插入和删除数据元素，而堆栈指是在固定的一端进行数据的插入和删除操作。
+ 	链表优于数组的: 
+	（1）.插入与删除的操作.如果数组的中间插入一个元素,那么这个元素后的所有元素的内存地址都要往后移动.删除的话同理.只有对数据的最后一个元素进行插入删除操作时,才比较快.链表只需要更改有必要更改的节点内的节点信息就够了.并不需要更改节点的内存地址. 
+	（2）.内存地址的利用率方面.不管你内存里还有多少空间,如果没办法一次性给出数组所需的要空间,那就会提示内存不足,磁盘空间整理的原因之一在这里.而链表可以是分散的空间地址. 
+	（3）.链表的扩展性比数组好.因为一个数组建立后所占用的空间大小就是固定的.如果满了就没法扩展.只能新建一个更大空间的数组.而链表不是固定的,可以很方便的扩展.
+	顺序表的优点:查找方便,适合随机查找 
+	顺序表的缺点:插入、删除操作不方便，因为插入、删除操作会导致大量元素的移动 
+	链接表的优点:插入、删除操作方便，不会导致元素的移动，因为元素增减，只需要调整指针。 
+	顺序表的缺点:查找方便，不适合随机查找
+ 23、排序/查找算法及时间复杂度
+ 	按数量级递增排列，常见的时间复杂度有：常数阶O(1),对数阶O(log2n),线性阶O(n),线性对数阶O(nlog2n),平方阶O(n2)，立方阶O(n3)
+ 	（1）排序算法
+ 	<?php O(N*N)
+	//冒泡排序前后相邻的两个数依次进行比较调整，较大的往下沉较小的往上冒
+	$arr = [4, 1, 8, 2];
+	function bubbleSort($arr){
+		$len = count($arr);
+		for($i=1; $i<$len; $i++){
+			for($k=0;$k<$len-1;$k++){
+				if($arr[$k]>$arr[$k+1]){
+					$tmp = $arr[$k+1];
+					$arr[$k+1] = $arr[$k];
+					$arr[$k] = $tmp;
+				}
+			}
+		}
+		return $arr;
+	}
+
+	<?php O(N*N)
+	//选择排序选出最小的和第一位置数交换，再找最小的与第二个交换
+	$arr = [4, 1, 8, 2];
+	function selectSort($arr){
+		$len = count($arr);
+		for($i=0; $i<$len-1; $i++){
+			$p = $i;
+			for($j=$i+1;$j<$len;$j++){
+				if($arr[$p]>$arr[$j]){
+					$p = $j;
+				}
+			}
+			if($p != $i){
+				$tmp = $arr[$p];
+				$arr[$p] = $arr[$i];
+				$arr[$i] = $tmp;
+			}
+		}
+		return $arr;
+	}
+	var_dump(selectSort($arr));
+	
+	<?php  O(N*N)
+	//插入排序假设前面的数已经排好顺序，要把第n个数插到前面的有序数中，如此反复循环
+	$arr = [4, 1, 8, 2];
+	function insertSort($arr){
+		$len = count($arr);
+		for($i=1; $i<$len; $i++){
+			$tmp = $arr[$i];
+			for($j=$i-1;$j>=0;$j--){
+				if($tmp < $arr[$j]){
+					$arr[$j+1] = $arr[$j];
+					$arr[$j] = $tmp;
+				}else{
+					break;
+				}
+			}
+		}
+		return $arr;
+	}
+	var_dump(insertSort($arr));
+
+	<?php
+	//快速排序选择一个基准元素，通常选择第一个或最后一个。通过一趟扫描，将待排序列分成两部分，一部分比基准数小，一部分大于基准元数。然后递归 O(n *log2(n))
+	$arr = [4, 1, 8, 2];
+	function quickSort($arr){
+		$len = count($arr);
+		if($len <= 1){
+			return $arr;
+		}
+		$baseNum = $arr[0];
+		$leftArr = [];
+		$rightArr = [];
+		for($i=1; $i<$len; $i++){
+			if($baseNum > $arr[$i]){
+				$leftArr[] = $arr[$i];
+			}else{
+				$rightArr[] = $arr[$i];
+			}
+		}
+		$leftArr = quickSort($leftArr);
+		$rightArr = quickSort($rightArr);
+		return array_merge($leftArr, [$baseNum], $rightArr);
+	}	
+	var_dump(quickSort($arr));
+	（2）、查找算法
+	//二分查找 二分查找O(log2n)
+	$arr = [1, 4, 5];
+	function binSearch($arr, $minIndex, $maxIndex, $find){
+		$mid = intval(($minIndex+$maxIndex)/2);
+		if($find == $arr[$mid]){
+			return $mid;
+		}else if($arr[$mid] > $find){
+			return binSearch($arr, $mid, $mid-1, $find);
+		}else{
+			return binSearch($arr, $mid+1, $maxIndex, $find);
+		}
+	}
+	var_dump(binSearch($arr, 0, 2, 5));
+ 24、laravel
+ 	事件监听、中间件、任务调度、数据库迁移、ORM —— 关联关系、队列、验证逻辑
+
