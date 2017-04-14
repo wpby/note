@@ -1,4 +1,4 @@
-﻿1. 在\web\config 目录下admin_menus.php增加菜单
+1. 在\web\config 目录下admin_menus.php增加菜单
 2. 样式在views/admin/issues/show.blade.php
 3. 设置 diffForHumans() 的语言呢？如果做中文站，肯定是希望展示为"x 分钟之前",而不是"x minutes ago"可以在app/Providers/AppServiceProvider.php的boot()方法加上：\Carbon\Carbon::setLocale('zh');
 4. 数据库迁移 php artisan migrate
@@ -58,21 +58,22 @@
 
 15. 使用blade模板引擎防止csrf攻击{!! csrf_field() !!} 
 
-16、路由跳转 return redirect()->route('academy',['id'=>1]);
+16. 路由跳转 return redirect()->route('academy',['id'=>1]);
 
 17. 命令空间，routes.php中的定义的控制器位于App\HttpControllers命令空间下，所以如果要指定命名空间，只需要指定App\Http\Contollers之后的部分即可。例如:Route::group([]);
 
 18. 创建迁移1.php artisan make:migration 2. php artisan migrate 
 
 19. 增加字段比如在product表中增加change_max字段
-    php artisan make:migration add_change_max_colunmn_to_product_table --table=products
+`    
+	php artisan make:migration add_change_max_colunmn_to_product_table --table=products
 
     php artisan make:migration change_title_colunmn_to_review_question_table --table=review_questions
 
     php artisan make:migration rename_group_to_tag_id_questionnaire_question_table --table=questionnaire_questions
-
-    在新增加的迁移中up方法和down方法中增加下面的代码
-`    
+`
+	####在新增加的迁移中up方法和down方法中增加下面的代码
+`
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
@@ -80,7 +81,7 @@
         });
     }
 `
-`  
+`
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
@@ -88,7 +89,7 @@
         });
     }
 `
-    在执行php artisan migrate 命令
+    ####在执行php artisan migrate 命令
 
 20. 格式化时间$this->_view['str_time'] = \TimeUtil::sec_to_time($time);
 
@@ -150,11 +151,14 @@
 33.  字符串模糊查询
 $where[] = ['realname', 'like', '%'. $name. '%'];
 
-34. laravle页面之间进行引用页面,并传递变量。 @include('Student::course. item')
+34. laravle页面之间进行引用页面,并传递变量。 
+`
+	@include('Student::course. item')
 
-  "items" : ['source', 'undo', 'redo', 'table', 'code'],
+  	"items" : ['source', 'undo', 'redo', 'table', 'code']
+`
 
-35.  laravel 改变数据库字段
+35. laravel 改变数据库字段
 `    
     Schema::table('review_questions', function (Blueprint $table) {
         $table->text('title')->nullable(null)->comment('题目')->change();
@@ -167,8 +171,7 @@ $where[] = ['realname', 'like', '%'. $name. '%'];
 
 36. (new Carbon($next_class['start_at']))->toTimeString(); 转换为小时分钟秒
 
-37. $user_id = \Auth::user()->id; 获取当前登录用户id 
-    $user_name = \Auth::user()->usernmae; 获取当前登录者用户名
+37. $user_id = \Auth::user()->id; 获取当前登录用户id.$user_name = \Auth::user()->usernmae; 获取当前登录者用户名
 
 38. private $img_path = 'http://115. 28. 244. 55:8085/upload';
 	$data[0]['link_to'] = preg_replace('/(?<=img src)(\W+)\/upload?/i', "$1". $this->img_path, $data[0]['link_to']);
@@ -182,25 +185,34 @@ $where[] = ['realname', 'like', '%'. $name. '%'];
 
 40. 路由怎么修改 都提示不对, 可能ajax 请求的时候token 没加 
 
-41. 如果没有则新建  TeacherBank::firstOrNew(['teacher_id'=>$teacher_id]); 
-	并且在 model 里面设置可填充 protected $fillable = ['teacher_id']; 
+41. 如果没有则新建,
+`	
+	TeacherBank::firstOrNew(['teacher_id'=>$teacher_id]);
 `
-    $query = $this->model->with(['openclass']);
-    $openclasses = Openclass::where('level', $openclass_level)
-        ->lists('id')->all();
-    if (empty($openclasses)) {
-        return [];
-    }
-
-    $teachers = Teacher::whereNested(function ($query) use ($filtersTeacher) {
-        foreach ($filtersTeacher as $key => $value) {
-            $query->where($value[0], $value[1], $value[2]);
-        }
-    })->lists('id')->all();
-    if (empty($teachers)) {
-        return [];
-    }
-    $query->whereIn('teacher_id', $teachers);
+	####并且在 model 里面设置可填充 
+`	
+	protected $fillable = ['teacher_id'];
+`
+`
+	public function test()
+	{
+		$query = $this->model->with(['openclass']);
+	    $openclasses = Openclass::where('level', $openclass_level)
+	        ->lists('id')->all();
+	    if (empty($openclasses)) {
+	        return [];
+	    }
+	
+	    $teachers = Teacher::whereNested(function ($query) use ($filtersTeacher) {
+	        foreach ($filtersTeacher as $key => $value) {
+	            $query->where($value[0], $value[1], $value[2]);
+	        }
+	    })->lists('id')->all();
+	    if (empty($teachers)) {
+	        return [];
+	    }
+	    $query->whereIn('teacher_id', $teachers);
+	}
 `
 
 42. {{env('APP_CDN')}} cdn 加速
@@ -418,8 +430,9 @@ php artisan laravel:academy(来自于HelloLaravelAcademy. php中protected $signa
     \Artisan::call('tmp:export:classroomdetails', ['package_id' => implode(',', $package_id)], $output);
     return $output->fetch(); 
 `
-106. 
-`   \Excel::selectSheets("Sheet1")->load($path, function ($results) {
+106.  
+`   
+	\Excel::selectSheets("Sheet1")->load($path, function ($results) {
         $num = 0;
         $count = $results->count();
         $this->info('总共:'. $count. '条数据,');
@@ -430,14 +443,17 @@ php artisan laravel:academy(来自于HelloLaravelAcademy. php中protected $signa
 `
 107. 
 `
-\Excel::filter('chunk')->selectSheetsByIndex(0)->load($path)->chunk(100, function($results){
-    
-});
+	\Excel::filter('chunk')->selectSheetsByIndex(0)->load($path)->chunk(100, function($results){
+	    
+	});
 `
 
-108. redis 停止,启动,重启命令/etc/init. d/redis-server stop
+108. redis 停止,启动,重启命令
+`
+	/etc/init. d/redis-server stop
     /etc/init. d/redis-server start
     /etc/init. d/redis-server restart
+`
 
 109. redis和mongodb的视图管理工具不能连接，虚拟机里面的时候，修改/etc目录下的配置文件。
 修改bind_ip = 0. 0. 0. 0，然后重启下服务即可。
