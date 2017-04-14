@@ -1,6 +1,6 @@
-﻿1. 在\web\config 目录下admin_menus. php 增加菜单
-2. 样式在views/admin/issues/show. blade. php
-3. 设置 diffForHumans() 的语言呢？如果做中文站，肯定是希望展示为"x 分钟之前",而不是"x minutes ago"可以在app/Providers/AppServiceProvider. php的boot()方法加上：\Carbon\Carbon::setLocale('zh');
+﻿1. 在\web\config 目录下admin_menus.php增加菜单
+2. 样式在views/admin/issues/show.blade.php
+3. 设置 diffForHumans() 的语言呢？如果做中文站，肯定是希望展示为"x 分钟之前",而不是"x minutes ago"可以在app/Providers/AppServiceProvider.php的boot()方法加上：\Carbon\Carbon::setLocale('zh');
 4. 数据库迁移 php artisan migrate
 5. Once the middleware has been defined in the HTTP kernel, you may use the middleware key in the route options array:
 `
@@ -10,7 +10,7 @@
 `
 增加上middleware  因为5.2把 ->withErrors($validator)会将验证错误信息存放到一次性session中，以便在视图中可以通过$errors变量访问。 去掉了
 
-6. 数据库迁移 注意表名都是复数 即加个s
+6. 数据库迁移注意表名都是复数,即加个s
     * 创建tasks表 使用mask:migration命令为tasks 生成一个新的数据库迁移
     php artisan make:migration create_tasks_table --create=tasks 生成的新迁移文件位于database/migrations目录下。这个命令已经添加了自增id和时间戳，然后根据需求编辑增加更多的字段到任务表 
     * 运行迁移使用 php artisan migrate
@@ -24,22 +24,23 @@
 10. model之间的关联,甩hasMany和belongsTo进行关联 比如users表 对应多个tasks
 `   
     class User extends Model implements AuthenticatableContract,AuthorizableContract,CanResetPasswordContract
-	{
-		//任务
-		public function tasks(){
-			return $this->hasMany(Task::class);
-		}
-	} 
+    {
+        //任务
+        public function tasks(){
+            return $this->hasMany(Task::class);
+        }
+    } 
 `
     上面不需要用use app\Task; 在Task模型里面 
 `
-	class Task extends Model{
-		public function user()
-		{
-			return $this->belongsTo(User::class);
-		}
-	} app/Http/Controllers/AuthController
+    class Task extends Model{
+        public function user()
+        {
+            return $this->belongsTo(User::class);
+        }
+    } app/Http/Controllers/AuthController
 `
+
 11. 新安装的laravel应用中已经包含了app/Http/Controllers/AuthController这个控制器,该控制器中使用了一个特殊的AuthenticatesAndRegistersUsers trait,而这个trait 中包含了用户注册登录所必须的相关逻辑
 
 12. 注意布局中的@yield('content')部分，这是一个blade指令，用于指定继承布局的子页面在这里注入自己的内容。
@@ -47,25 +48,24 @@
 13. 可以在控制器中验证数据 
 `
     public function store(Request $request){
-    	$this->validate($request,[
-    		'name'=>"required|max:255",
-    	]);
+        $this->validate($request,[
+            'name'=>"required|max:255",
+        ]);
     } 
 `
+
 14. Html表单只支持post和get两种请求方式,因为需要使用某种方式伪造delete请求
 
 15. 使用blade模板引擎防止csrf攻击{!! csrf_field() !!} 
 
-16. 路由跳转 return redirect()->route('academy',['id'=>1]);
+16、路由跳转 return redirect()->route('academy',['id'=>1]);
 
-17. 命令空间，routes.php中的定义的控制器位于App\HttpControllers命令空间下，所以如果要指定命名空间，只需要指
-定App\Http\Contollers之后的部分即可 例如：
-Route::group([]);
-php artisan make:migration add_question_ids_colunmn_to_paper_rules --table=paper_rules
-18. 创建迁移 1. php artisan make:migration 2. php artisan migrate 
+17. 命令空间，routes.php中的定义的控制器位于App\HttpControllers命令空间下，所以如果要指定命名空间，只需要指定App\Http\Contollers之后的部分即可。例如:Route::group([]);
+
+18. 创建迁移1.php artisan make:migration 2. php artisan migrate 
 
 19. 增加字段比如在product表中增加change_max字段
-	php artisan make:migration add_change_max_colunmn_to_product_table --table=products
+    php artisan make:migration add_change_max_colunmn_to_product_table --table=products
 
     php artisan make:migration change_title_colunmn_to_review_question_table --table=review_questions
 
@@ -90,22 +90,22 @@ php artisan make:migration add_question_ids_colunmn_to_paper_rules --table=paper
 `
     在执行php artisan migrate 命令
 
-20. 格式化时间  $this->_view['str_time'] = \TimeUtil::sec_to_time($time);
+20. 格式化时间$this->_view['str_time'] = \TimeUtil::sec_to_time($time);
 
-21. 增加一个字段后 想要在保存后在填充 例如Openclasses表中的room_id字段，在Model\Openclass. php模型里面 增加
+21. 增加一个字段后想要在保存后在填充,例如Openclasses表中的room_id字段,在Model\Openclass.php模型里面增加
 	//可填充的
     protected $fillable = array('room_id');即可
 
 22. $this->model->where('id',$id)->whereRaw('student_max > students')->get()->isEmpty()
 根据教室id 查询所有student_max 大于students的记录  想使用where 必须有一个变量值
 
-23. MethodNotAllowedHttpException 报错是因为  路由不对 很可能是method=put 的原因 
+23. MethodNotAllowedHttpException报错,是因为路由不对,很可能是method=put的原因 
 
 24. 获取新增id (1)DB::insertGetId(); (2)使用的是$this->model->save()方法, 直接对象->id 就是新增id
 
-25.  ctrl+shift+F 可以查询函数在项目中所有使用这个函数的文件,ctrl+p可以查询文件
+25. ctrl+shift+F 可以查询函数在项目中所有使用这个函数的文件,ctrl+p可以查询文件
 
-26.  删除数据，可以使用数据的事物 
+26. 删除数据，可以使用数据的事物 
 `
     \DB::beginTransaction();
 
@@ -115,7 +115,7 @@ php artisan make:migration add_question_ids_colunmn_to_paper_rules --table=paper
     \DB::commit();
 `
 
-27.  使用dd(\DB::getQueryLog()); 可以显示查询的mysql 语句;
+27. 使用dd(\DB::getQueryLog()); 可以显示查询的mysql 语句;
 
 28.  在后台的voucher/create 页面{!! Form::text('total', null, ['class' => 'spinbox-input form-control text-center spinner']) !!}  输入框为数字并且数字不为负数。 并在下面加上
 `
@@ -147,9 +147,10 @@ php artisan make:migration add_question_ids_colunmn_to_paper_rules --table=paper
 32. resources/macros
     $this->_view['lev']=array_get(\Config::get('base. class_lv'),$student->level_id);
 
-33.  字符串模糊查询 $where[] = ['realname', 'like', '%'. $name. '%'];
+33.  字符串模糊查询
+$where[] = ['realname', 'like', '%'. $name. '%'];
 
-34. laravle 页面之间进行引用页面 并传递变量   @include('Student::course. item')
+34. laravle页面之间进行引用页面,并传递变量。 @include('Student::course. item')
 
   "items" : ['source', 'undo', 'redo', 'table', 'code'],
 
@@ -169,8 +170,7 @@ php artisan make:migration add_question_ids_colunmn_to_paper_rules --table=paper
 37. $user_id = \Auth::user()->id; 获取当前登录用户id 
     $user_name = \Auth::user()->usernmae; 获取当前登录者用户名
 
-38.  private $img_path = 'http://115. 28. 244. 55:8085/upload';
-	
+38. private $img_path = 'http://115. 28. 244. 55:8085/upload';
 	$data[0]['link_to'] = preg_replace('/(?<=img src)(\W+)\/upload?/i', "$1". $this->img_path, $data[0]['link_to']);
 
 39. laravel 使用 renameColumn 函数重命名一个字段：
@@ -179,12 +179,13 @@ php artisan make:migration add_question_ids_colunmn_to_paper_rules --table=paper
         $table->renameColumn('from', 'to');
     });
 `
-40.  路由怎么修改 都提示不对, 可能ajax 请求的时候token 没加 
 
-41.  如果没有则新建  TeacherBank::firstOrNew(['teacher_id'=>$teacher_id]); 
+40. 路由怎么修改 都提示不对, 可能ajax 请求的时候token 没加 
+
+41. 如果没有则新建  TeacherBank::firstOrNew(['teacher_id'=>$teacher_id]); 
 	并且在 model 里面设置可填充 protected $fillable = ['teacher_id']; 
 `
-	$query = $this->model->with(['openclass']);
+    $query = $this->model->with(['openclass']);
     $openclasses = Openclass::where('level', $openclass_level)
         ->lists('id')->all();
     if (empty($openclasses)) {
@@ -201,18 +202,19 @@ php artisan make:migration add_question_ids_colunmn_to_paper_rules --table=paper
     }
     $query->whereIn('teacher_id', $teachers);
 `
+
 42. {{env('APP_CDN')}} cdn 加速
 43. Request::getRequestUri() 获取当前url 并且带参数
 
-44.  弹框页面有缓存记得在js 加上这句话
+44. 弹框页面有缓存记得在js 加上这句话
 `
     // cleanup the content of the hidden remote modal because it is cached
     $('#myModal'). on('hide. bs. modal', function (e) {
         $(this). removeData('bs. modal');
     });
 `
+45. 文件上传控制器为admin/uploadController控制器
 
-45. 文件上传控制器 为admin/uploadController控制器 
 46. StudentLevel 
     const TYPE_NAMES = [
        '1' => '长期班',
@@ -238,9 +240,9 @@ php artisan make:migration add_question_ids_colunmn_to_paper_rules --table=paper
 53. 如果站点在国内，建议使用百度静态资源库的Bootstrap，代码如下：
     <link rel="stylesheet" href="http://apps. bdimg. com/libs/bootstrap/3. 3. 4/css/bootstrap. min. css">
 
-54. array_slice(config('base. class_lv'),10)  配置文件从第10个开始
+54. array_slice(config('base. class_lv'),10),配置文件从第10个开始
 
-55.  Laravel  chunk(200) 只取200条，如果总共有200条以上数据 在使用命令文件的时候要多执行几遍命令
+55. Laravel  chunk(200) 只取200条, 如果总共有200条以上数据在使用命令文件的时候要多执行几遍命令
 
 56. 命令文件protected $signature = 'update:openclassesLevel'; 在目录使用php artisan update:openclassesLevel    signature(签名; 署名; 识别标志，鲜明特征; [医] 药的用法说明)
 
@@ -272,7 +274,7 @@ select 1 其实没什么特别的意思，就是select 一个指定的值，因�
 
 61. MassAssignmentException laravel  在相应model 设置protected $fillable = ['user_id', 'paper_id', 'operation'];
 
-62.  //设置cookie 
+62. //设置cookie 
     return back()->withCookie('lottery_v2_liked_'. $student_id. '_'. $gift->id, 1, 60*24*30);
 
 63. 判断指定日期是否过去
@@ -292,7 +294,7 @@ select 1 其实没什么特别的意思，就是select 一个指定的值，因�
     $newstr = substr($str,0,strlen($str)-1); 
     echo $newstr;  //echo 1,2,3,4,5,6
 
-66.  laravel 5. 3版本中lists换成pluck 
+66. laravel5.3版本中lists换成pluck 
 
 67. 使用mysql语句。
     return PaperQuestion::select(\DB::raw('count(*) as nums, question_type'))
@@ -324,7 +326,7 @@ select 1 其实没什么特别的意思，就是select 一个指定的值，因�
 
 73. 修改Homestead. yaml文件后，需要运行 vagrant provision  重启重新启动 Homestead。
 
-74. cmd进入redis目录 输入redis-server. exe  redis. conf 启动
+74. cmd进入redis目录 输入redis-server.exe  redis.conf 启动
 
 75. cmd进入mongodb\bin\目录输入mongod --dbpath D:\Mongodb\data 启动
 
@@ -332,7 +334,7 @@ select 1 其实没什么特别的意思，就是select 一个指定的值，因�
     有冲突 用git pull 解决冲突,git branch 查看分支
 
 77. 新建分支 需要 1. git clone 网址 2.  拉取core分支代码  3. composer  dumpautoload
-	4.  配置env 文件5. composer update 
+    4.  配置env 文件5. composer update 
 
 78. composer 下载东西慢 修改composer. json文件 添加到最后
     "repositories": [{
@@ -358,11 +360,11 @@ PSR-4 如何指定文件路径从而自动加载类定义，同时规范了自�
 
 85. homestead登陆mysql :mysql -h192. 168. 10. 10 -uhomestead -p   密码：secret
 
-86. angular. js 2. 0 npm start 启动失败 修改package. json 
+86. angular.js2.0 npm start 启动失败 修改package. json 
 "start": "tsc && concurrently \"tsc -w\" \"lite-server\" ",
 为："start": "concurrently \"npm run tsc:w\" \"npm run lite\" ",
 
-87. angular. js 2. 0 单向绑定： <input value="{{hero. name}}">双向绑定绑定数据 <input [(ngModel)]="hero. name" placeholder="输入姓名">
+87. angular.js2.0 单向绑定： <input value="{{hero. name}}">双向绑定绑定数据 <input [(ngModel)]="hero. name" placeholder="输入姓名">
 
 88. js获取php数组 var s = {!! json_encode(config('questions. question_tag')) !!}
 
@@ -374,8 +376,133 @@ protected $commands = [
 在控制台运行如下Artisan命令：
 php artisan laravel:academy(来自于HelloLaravelAcademy. php中protected $signature = 'laravel:academy';) $signature即为在控制台执行的命令名
 
-90.  数据库报错日志try catch日志 \Log::error('------->addReview Exception# ' .  $e->getMessage());
+90. 数据库报错日志try catch日志\Log::error('------->addReview Exception# '.$e->getMessage());
 
-91.  bootstrap-datepicker限定可选时间范围             startDate: '2017-01-10',  
-                endDate : new Date(),//最大日期
+91. bootstrap-datepicker限定可选时间范围, startDate: '2017-01-10', endDate : new Date(),//最大日期
+
 92. 修改composer 文件后 记得composer update -vvv 然后"composer dump-autoload"
+
+93. 安装laravel, 需要修改composer配置文件为composer config -g repo.packagist composer https://packagist.phpcomposer.com。然后修改laravel的composer.json文件
+加上"repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist. phpcomposer. com"
+        }
+    }，记得配置. env文件不然会报错。
+
+94. 新建的项目php artisna make:auth 会自动写好注册页面，然后php artisan migrate自动创建users表和passwor_resets表
+
+95. php artisan make:model Models/Admin -m 加上-m会生成对应迁移文件，*_create_admins_table。
+
+96. php artisan make:seeder AdminsTableSeeder创建种子文件，在database/seeds下面
+
+97. 数据模型工场,database/factories/ModelFactory. php
+
+98. mt_rand 效率更快点
+
+99. SideBarEnhancements sublime text3 文件删除，刷新插件
+
+100. export NODE_ENV=develop && gulp编译anuglarjs+gulp 文件
+
+101. gulp中. pipe(concat('all. js'))//合并后的文件名
+
+102. postman post请求中参数应该在body里面。不是在headers里面
+
+103. \Config::get('reoder');读取配置里面的东西
+
+104. php artisan vendor:publish --provider="Maatwebsite\Excel\ExcelServiceProvider" 在config 目录下生成excel. php配置文件。修改to_ascii = > true 就可以读取中文。
+
+105. echo Artisan::output(); laravel 获取Artisan::call的执行结果, 或者
+`    
+    use Symfony\Component\Console\Output\BufferedOutput;
+    \Artisan::call('tmp:export:classroomdetails', ['package_id' => implode(',', $package_id)], $output);
+    return $output->fetch(); 
+`
+106. 
+`   \Excel::selectSheets("Sheet1")->load($path, function ($results) {
+        $num = 0;
+        $count = $results->count();
+        $this->info('总共:'. $count. '条数据,');
+        foreach ($results->get()->chunk(100) as $row) {
+            $this->send($row, $num);
+        });
+    });
+`
+107. 
+`
+\Excel::filter('chunk')->selectSheetsByIndex(0)->load($path)->chunk(100, function($results){
+    
+});
+`
+
+108. redis 停止,启动,重启命令/etc/init. d/redis-server stop
+    /etc/init. d/redis-server start
+    /etc/init. d/redis-server restart
+
+109. redis和mongodb的视图管理工具不能连接，虚拟机里面的时候，修改/etc目录下的配置文件。
+修改bind_ip = 0. 0. 0. 0，然后重启下服务即可。
+
+110. SELECT openclass_id,no FROM `schedules` WHERE openclass_id >0 GROUP BY openclass_id,no HAVING COUNT(no)>6获得班课某个章节人数大于6 的班课,根据openclass_id,no分组
+
+111. mysql 命令导入sql文件, mysql -u root -p testiZ284vyq3w4Z  –default-character-set  = utf8  db < C:lewaijiao.sql
+
+112. cmd进入redis目录 输入redis-server.exe  redis.conf 启动, cmd进入mongodb\bin\目录输入mongod --dbpath D:\Mongodb\data 启动
+
+113. git提交步骤(1). git status 查看状态(2).git add 文件 增加文件;(3). git commit -m " 注释.增加了评论……" ;(4). git push有冲突,用git pull解决冲突
+git branch 查看分支 
+
+114. 新建项目需要 1.git clone 网址 2.拉取core分支代码3.composer  dumpautoload4.配置env文件5.composer update 
+
+115. js字符串转成日期 
+ `   
+    var str ='2012-08-12 23:13:15';
+    str = str. replace(/-/g,"/");
+    var date = new Date(str);
+    console. log(date);
+`
+
+116. sudo vim 编辑文件,用/+ 字符串进行查找字符串的位置,已经用/找到了一个词,那么n(下一个),N(上一个)再找这个词
+
+117. use Illuminate\Database\Eloquent\SoftDeletes; $table->softDeletes(); laravel软删除。
+
+118. sudo cnpm install supervisor -g， node. js安装Node Supervisor原本是用于服务器上Node. js应用崩溃的时候，自动重新启动。当然它也可以监控你的项目的js文件变化，自动重启来方便调试。使用方法supervisor app. js 即可监控js. 
+
+119. laravel excel 获取header
+`
+    public function getHeaders(SplFileInfo $file)
+    {
+        return ((((\Excel::load($file))->all())->first())->keys())->toArray(); // I wrap in 1 line just for fun :)
+    }
+`
+
+120. [正向代理」代理的对象是客户端,[反向代理」代理的对象是服务端
+    文章链接:https://foofish.net/proxy-and-reverse-proxy.html
+
+121. php artisan make:migration add_main_tag_colunmn_to_lechat_teachers --table=teachers
+
+    php artisan make:migration change_link_to_colunmn_to_client_ad_table --table=client_ads
+
+    php artisan make:migration rename_user_id_colunmn_to_lechat_wallets_table --table=wallets
+
+    php artisan make:migration remove_lead_id_colunmn_to_lechat_checkin_member_table --table=checkin_members
+
+122. mysql 命令导入mysql文件。mysql -u root -p testiZ284vyq3w4Z  –default-character-set  = utf8  db < C:lewaijiao. sql
+
+123. source C:\lewaijiao. sql
+
+124. 字符串相加：(1). 如果字符串是以数字开头的,则只取数字部分,数字后面的字符串去除也包括这种(ss123),
+    (2). 如果字符串是以字母开头的,则直接转换整型数字0。然后进行相加
+
+125. strcmp(),比较字符串,当字符串之间第一位不相等时候, 结束为字符串第一位之间的差值。如果相等,则后面多几个字符串就是多一个1
+example:
+`    
+    strcmp('a', 'dsdfsdf');//-3
+    strcmp('ab', 'dcdfsdf');//-3
+    strcmp('as', 'asdfsdf');//-5
+`
+
+126. mysql_connect()已经被抛弃。mysqli只能连接mysql,PDO应用12种不同数据库
+
+127. 数组分为索引数组(带有数字索引的数组),关联数组(键值对数组)和多维数组(包含一个或多个数组的数组)
+
+128. 
