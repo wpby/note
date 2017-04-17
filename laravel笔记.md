@@ -521,4 +521,24 @@ example:
 
 127. 数组分为索引数组(带有数字索引的数组),关联数组(键值对数组)和多维数组(包含一个或多个数组的数组)
 
-128. 
+128. 安装Doc​Blockr插件，然后在sublime text3 输入/**，按enter就可以增加多行自动注释
+
+129. 1. git mv --force commentProductController.php CommentProductController.php 	windows环境下在git中修改文件的大小写。
+	2. git mv -force myFile.txt MyFile.txt或者git mv -f myFile MyFile,它会自动add,直接commit 
+	3. 或者配置git文件，Add ignorecase = false to [core] in .git/config;
+
+130. 接口和抽象类的区别：
+		1. 接口（interface 接口名字）是规范，继承的子类必须实现接口的所有方法。否则会报错（接口类就是一个类的领导者，指明方向，子类必须完成它指定方法），接口用implements 继承
+		2. 抽象类(abstract test)的继承用extends,必须完成抽象类的抽象方法，但不一定需要实现public的方法，
+		3. 接口没有构造函数，抽象类可以有构造函数
+		4. 一个类可以同时实现多个接口，但一个类只能继承于一个抽象类
+		5. 接口中不可以声明成员变量（包括类静态变量），但是可以声明类常量。抽象类中可以声明各种类型成员变量，实现数据的封装
+		
+131. 1. 值拷贝是深拷贝，而指针拷贝是浅拷贝。
+
+	 2. 浅复制(通过一个原型实例,这里暂称为老对象。克隆所得到的对象--这里暂时称为新对象)又称为浅拷贝，深复制又称为深拷贝
+
+132.  
+
+
+
