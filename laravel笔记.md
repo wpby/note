@@ -562,3 +562,31 @@ example:
 138. mysql_fetch_array是面向过程方式操作数据库，fetch_array是面向对象方式操作数据库！建议使用面向对象
 
 139. php是单继承语言，没有trait之前无法同时从两个基类继承属性或方法。Trait不能直接实例化，通过use TestTrait进行使用。[blog 链接](https://segmentfault.com/a/1190000002970128)
+140. RPC 远程调用 [csdn链接](http://blog.csdn.net/diandianxiyu_geek/article/details/52294201), [segmentfault链接](https://segmentfault.com/q/1010000000318121)
+
+141. mysql主从数据库master db（主数据库,主服务器）一般负责数据的写入，和slave db(从数据库，从服务器)一般负责读取数据，实现了读写分离。 [详情](http://www.cnblogs.com/jirglt/p/3549047.html)，master将改变记录到二进制日志中（这些记录叫做二进制日志事件)，slave将master的二进制日志事件拷贝到它的中继日志， slave重做中继日志中的事件，将改变反映它自己的数据
+
+142. MVC是一种C/S或者B/S软件工程的组织方式
+143. 数据库的三范式(设计表的时候，大部分都需要满足数据库的三范式)
+	1. 第一范式：确保每列的原子性（如果每列都是不可再分的最小数据单元，则满足第一范式）
+	2. 第二范式： 在第一范式的基础上，更近一层，目标是确保表中的每列都和主键相关，如果一个关系满足第一范式，并且除了主键以外的其他列。都依赖于该主键，则满足第二范式
+	3. 第三范式: 在第二范式的基础上，目标是确保每列都和主键列直接关系，而不是间接关系
+
+144. NoSql: 非关系型数据库
+
+145. redis是可远程的，（1）. 有客户端和服务端两个部分、通过redis自定义传输进行连接的，(2). redis和mongodb基于内存的，比mysql存到到硬盘快很多，(3). 非关系型数据库。
+
+146. redis应用场景: 1. 缓存 2. 队列，push(在队列尾部增加元素),pop(弹出队列的最后一个元素)的操作保证了原子性的实现  3. 数据储存
+ 
+147. PHP_EOL相当于换行符。使用PHP_EOL可以提高代码的源代码级可移植性。在unix系列用\n,在windows系列用\r\n,在mac用\r,php中可以用PHP_EOL来替代，对于浏览器来说，文本换行要使用<br>标记，通常文件里文本的换行，只对文本有效，对浏览器没有作用。(2).可以查看源代码，看到PHP_EOL是否有效。
+
+148. redis 数据类型
+	1. string类型。key=>value(string/int/float)
+	int类型自增set test 1, get test(结果是1)，incr test（自增），get test (结果2)
+	decrby test 2 (decrby 变量名称 数字)，减法，test变量-2
+	2. list类型是一个有序列表。左边是key,右边是value.其中value中上面是左，下面是右。lpush从左边进行插入，rpush从右边进行插入，rpop从右边进行弹出，lpop进行弹出。 **list类型不要去字符串类型唯一，即可以重复** llen list 查看长度
+	3. set类型， 左边是key,右边是value,**每个元素的值都不一样，不可以重复**，scard查看长度，sismember myset a 判断a是否已存在。返回1为存在，0位不存在。srem myset a 删除a元素
+	4. hash类型，左边key,右边自上而下，key1/value(string/int/float), key2/value(string/int/float)等。设置值:hset hash1 key1 12, 获取多个值hmset hash1 key1 key2
+	5. sort set类型，score，查看排名: zrank zset value1 查看zset表中value1中的排名，排名从0开始
+	
+149. Nginx和PHP-FPM的启动/重启脚本[链接](https://www.lovelucy.info/nginx-phpfpm-init-script.html)。/etc/init.d/php-fpm restart
