@@ -590,3 +590,5 @@ example:
 	5. sort set类型，score，查看排名: zrank zset value1 查看zset表中value1中的排名，排名从0开始
 	
 149. Nginx和PHP-FPM的启动/重启脚本[链接](https://www.lovelucy.info/nginx-phpfpm-init-script.html)。/etc/init.d/php-fpm restart
+
+150. HHVM:重写的php引擎
